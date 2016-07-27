@@ -1,0 +1,28 @@
+{
+  "name": "dash",
+  "version": "0.0.1",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/surprisetalk/dash.git"
+  },
+  "author": "taylor sarrafian",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/surprisetalk/dash/issues"
+  },
+  "homepage": "https://github.com/surprisetalk/dash#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "express-ws": "^2.0.0-rc.1",
+    "gulp": "^3.9.1",
+    "gulp-nodemon": "^2.1.0",
+    "mongoose": "^4.5.7",
+    "underscore": "^1.8.3"
+  }
+}
