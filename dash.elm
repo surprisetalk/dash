@@ -5,6 +5,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http exposing (..)
 import WebSocket exposing (..)
+import Result exposing (..)
+import Debug exposing (..)
 import Json.Decode as Json exposing (..)
 
 main 
@@ -24,40 +26,73 @@ type alias Task
       
 type alias Model
   = { tasks : List Task
+    , edit : String
     }
 
 init : (Model, Cmd Msg)
 init =
-  (Model [], Cmd.none)
+  ({ tasks = [], edit = "" }, Cmd.none)
 
 -- UPDATE
 
 type Msg
-  = Create Task
+  = Prepare String
+  | Create String
   | Complete Task
-  | Parse (List Task)
+  | Fetch (List Task)
+
+socket : String
+socket = "ws://taysar.com:9458/task"
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Create task ->
-      (model, Cmd.none)
+    Prepare body ->
+      ({ model | edit = body }, Cmd.none)
+    Create body ->
+      -- KLUDGE
+      ({ model | edit = "" }, WebSocket.send socket <| "{\"done\":false,\"body\":\"" ++ body ++ "\"}")
     Complete task ->
       (model, Cmd.none)
-    Parse tasks ->
-      (model, Cmd.none)
+    Fetch tasks ->
+      ({ model | tasks = tasks }, Cmd.none)
 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-  WebSocket.listen "ws://taysar.com:9458/task" (\_ -> Parse [])
+subscriptions model 
+  -- TODO: compose fetch and parseTasks
+  = WebSocket.listen socket <| (\s -> Fetch <| parseTasks s)
+      
+parseTasks : String -> List Task
+parseTasks s
+  = Result.withDefault [] 
+    <| Json.decodeString decodeTasks s
+        
+decodeTasks : Decoder (List Task)
+decodeTasks
+  = Json.list 
+    <| Json.oneOf
+       [ Json.object2 Task
+            ("done" := Json.bool)
+            ("body" := Json.string)
+       , Json.succeed { done = False, body = "test" }
+       ]
 
 -- VIEW
 
 view : Model -> Html Msg
-view model =
-  div [] [ text "hello world" ]
+view {edit,tasks} 
+  = div [] 
+    [ Html.form [ onSubmit (Create edit) ] 
+      [ input [ Html.Attributes.value edit, onInput Prepare ] [] 
+      ]
+    , ul [] <| List.map taskItem tasks
+    ]
+      
+taskItem : Task -> Html Msg
+taskItem task
+  = li [] [ text task.body ]
 
 -- view : Model -> Html Msg
 -- view model =

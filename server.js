@@ -16,10 +16,12 @@ var Task = mongoose.model('Task', {
     priority: { type: Number, default: 1 }, 
     updated: { type: Date, default: Date.now } });
 
-// TODO
+var tap = x => console.log( x ) || x;
+var focus = f => x => f( x );
+
 var tasker = ( sender, query ) => Task.find( query || {} ).then( sender );
 
-app.get('/', ( req, res ) => res.sendfile( __dirname + "/index.html" ) );
+app.get('/', ( req, res ) => res.sendFile( __dirname + "/index.html" ) );
 
 app.get('/task', ( req, res ) => 
     tasker( x => res.send( x ), req.query )
@@ -27,11 +29,18 @@ app.get('/task', ( req, res ) =>
 app.ws('/task', ( ws, req ) => {
     // TODO: routines?
     // TODO: sort and filter based on priority
-    setInterval( () => tasker( ws.send ).catch( err => console.log( err ) || ws.sendStatus( 400 ) ), 500 );
+    // BUG: JSON.stringify?
+    Task.find( {} ).then( x => ws.send( JSON.stringify( x ) ) ).catch( err => console.log( err ) || ws.sendStatus( 400 ) );
+    // setInterval( () => tasker( x => ws.send( x ) ).catch( err => console.log( err ) || ws.sendStatus( 400 ) ), 10000 );
     // TODO: messages with ids update tasks. messages without ids create tasks
-    // ws.on('message', msg => {
-    //   JSON.parse( msg );
-    // });
+    ws.on('message', msg => {
+        ( new Task( JSON.parse( msg ) ) )
+            .save()
+            .then( () => 
+                Task.find( {} )
+                    .then( x => ws.send( JSON.stringify( x ) ) )
+                    .catch( err => console.log( err ) || ws.sendStatus( 400 ) ) );
+    });
 });
 
 app.put('/task', ( req, res ) => Task.findOneAndUpdate( { _id: req.query._id }, req.query ).then( ( err, tasks ) => err ? res.sendStatus( 400 ) : res.sendStatus( 204 ) ) );
