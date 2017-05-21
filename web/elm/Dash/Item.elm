@@ -1,5 +1,7 @@
 module Dash.Item exposing ( Item
                           , init
+                          , encode
+                          , decoder
                           , Msg
                           , update
                           , view
@@ -12,6 +14,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Dom exposing (focus)
+
+import Json.Decode as JD exposing (Decoder)
+import Json.Encode as JE
 
 import Task
 
@@ -34,6 +39,15 @@ init : Item
 init = { t = Nothing
        , u = "new item"
        }
+
+
+-- JSON ------------------------------------------------------------------------
+
+encode : Item -> JE.Value
+encode {u} = JE.string u
+
+decoder : Decoder Item
+decoder = JD.string |> JD.map (Item Nothing)
 
 
 -- HELPERS ---------------------------------------------------------------------
@@ -96,6 +110,6 @@ subs _
 view : Item -> Html Msg
 view i = div []
          [ case i.t of
-             Just t_ -> input [ id i.u, size <| String.length t_, value t_, onInput ItemWrite ] []
+             Just t_ -> textarea [ id i.u, size <| String.length t_, value t_, onInput ItemWrite ] []
              Nothing -> text i.u
          ]

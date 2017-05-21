@@ -32,7 +32,9 @@ type alias Model =
 -- INIT ------------------------------------------------------------------------
 
 init : (Model, Cmd Msg)
-init = Queue.init [] |> Model |> flip (!) []
+init = Queue.init []
+     |> Tuple.mapFirst Model
+     |> Tuple.mapSecond (Cmd.map QueueMsg)
 
 
 -- UPDATE ----------------------------------------------------------------------

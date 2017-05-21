@@ -18,10 +18,22 @@ import "phoenix_html";
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-// import socket from "./socket";
-
 import Elm from './main';
 
 const elmDiv = document.querySelector('#elm-target');
 if( elmDiv )
-    Elm.Main.embed( elmDiv );
+    var app = Elm.Main.embed( elmDiv );
+
+import socket from "./socket";
+
+// Now that you are connected, you can join channels with a topic:
+let channel = socket.channel("room:lobby", {});
+channel.join()
+    .receive("ok", resp => { console.log("Joined successfully", resp); })
+    .receive("error", resp => { console.log("Unable to join", resp); });
+
+channel.on("queue:update", resp => { console.log( resp ); });
+channel.on("queue:update", resp => { app.ports.queueSub.send( resp ); });
+
+app.ports.queuePub.subscribe( resp => { console.log( resp ); } );
+app.ports.queuePub.subscribe( resp => { channel.push( "queue:update", resp ); } );
