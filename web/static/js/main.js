@@ -11090,20 +11090,166 @@ var _elm_lang$websocket$WebSocket$onSelfMsg = F3(
 	});
 _elm_lang$core$Native_Platform.effectManagers['WebSocket'] = {pkg: 'elm-lang/websocket', init: _elm_lang$websocket$WebSocket$init, onEffects: _elm_lang$websocket$WebSocket$onEffects, onSelfMsg: _elm_lang$websocket$WebSocket$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$websocket$WebSocket$cmdMap, subMap: _elm_lang$websocket$WebSocket$subMap};
 
-var _user$project$Dash_Item$view = function (i) {
-	return _elm_lang$html$Html$text('TODO Item.view');
+var _user$project$Dash_Item$write = F2(
+	function (t_, i) {
+		return _elm_lang$core$Native_Utils.update(
+			i,
+			{
+				t: A2(
+					_elm_lang$core$Maybe$map,
+					_elm_lang$core$Basics$always(t_),
+					i.t)
+			});
+	});
+var _user$project$Dash_Item$edit = function (i) {
+	var _p0 = i.t;
+	if (_p0.ctor === 'Nothing') {
+		return _elm_lang$core$Native_Utils.update(
+			i,
+			{
+				t: _elm_lang$core$Maybe$Just(i.u)
+			});
+	} else {
+		return _elm_lang$core$Native_Utils.update(
+			i,
+			{t: _elm_lang$core$Maybe$Nothing, u: _p0._0});
+	}
 };
+var _user$project$Dash_Item$init = {t: _elm_lang$core$Maybe$Nothing, u: 'new item'};
+var _user$project$Dash_Item$Item = F2(
+	function (a, b) {
+		return {t: a, u: b};
+	});
+var _user$project$Dash_Item$ItemWrite = function (a) {
+	return {ctor: 'ItemWrite', _0: a};
+};
+var _user$project$Dash_Item$view = function (i) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: function () {
+				var _p1 = i.t;
+				if (_p1.ctor === 'Just') {
+					return A2(
+						_elm_lang$html$Html$input,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$id(i.u),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$value(_p1._0),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onInput(_user$project$Dash_Item$ItemWrite),
+									_1: {ctor: '[]'}
+								}
+							}
+						},
+						{ctor: '[]'});
+				} else {
+					return _elm_lang$html$Html$text(i.u);
+				}
+			}(),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$Dash_Item$KeyDown = function (a) {
+	return {ctor: 'KeyDown', _0: a};
+};
+var _user$project$Dash_Item$KeyUp = function (a) {
+	return {ctor: 'KeyUp', _0: a};
+};
+var _user$project$Dash_Item$subs = function (_p2) {
+	return _elm_lang$core$Platform_Sub$batch(
+		{
+			ctor: '::',
+			_0: _elm_lang$keyboard$Keyboard$ups(_user$project$Dash_Item$KeyUp),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$keyboard$Keyboard$downs(_user$project$Dash_Item$KeyDown),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Dash_Item$NoOp = {ctor: 'NoOp'};
 var _user$project$Dash_Item$update = F2(
 	function (msg, item) {
-		var _p0 = msg;
-		return A2(
-			_elm_lang$core$Platform_Cmd_ops['!'],
-			item,
-			{ctor: '[]'});
+		var keydown_ = function (c) {
+			var _p3 = c;
+			switch (_p3) {
+				case 13:
+					return _user$project$Dash_Item$edit;
+				case 16:
+					return _elm_lang$core$Basics$identity;
+				case 32:
+					return _elm_lang$core$Basics$identity;
+				case 37:
+					return _elm_lang$core$Basics$identity;
+				case 38:
+					return _elm_lang$core$Basics$identity;
+				case 39:
+					return _elm_lang$core$Basics$identity;
+				case 40:
+					return _elm_lang$core$Basics$identity;
+				default:
+					return _elm_lang$core$Basics$identity;
+			}
+		};
+		var keyup_ = function (c) {
+			var _p4 = c;
+			if (_p4 === 16) {
+				return _elm_lang$core$Basics$identity;
+			} else {
+				return _elm_lang$core$Basics$identity;
+			}
+		};
+		var focus_ = _elm_lang$core$List$singleton(
+			A2(
+				_elm_lang$core$Task$attempt,
+				_elm_lang$core$Basics$always(_user$project$Dash_Item$NoOp),
+				_elm_lang$dom$Dom$focus(item.u)));
+		var _p5 = msg;
+		switch (_p5.ctor) {
+			case 'NoOp':
+				return A3(
+					_elm_lang$core$Basics$flip,
+					F2(
+						function (x, y) {
+							return A2(_elm_lang$core$Platform_Cmd_ops['!'], x, y);
+						}),
+					{ctor: '[]'},
+					item);
+			case 'KeyUp':
+				return A3(
+					_elm_lang$core$Basics$flip,
+					F2(
+						function (x, y) {
+							return A2(_elm_lang$core$Platform_Cmd_ops['!'], x, y);
+						}),
+					{ctor: '[]'},
+					A2(keyup_, _p5._0, item));
+			case 'KeyDown':
+				return A3(
+					_elm_lang$core$Basics$flip,
+					F2(
+						function (x, y) {
+							return A2(_elm_lang$core$Platform_Cmd_ops['!'], x, y);
+						}),
+					focus_,
+					A2(keydown_, _p5._0, item));
+			default:
+				return A3(
+					_elm_lang$core$Basics$flip,
+					F2(
+						function (x, y) {
+							return A2(_elm_lang$core$Platform_Cmd_ops['!'], x, y);
+						}),
+					{ctor: '[]'},
+					A2(_user$project$Dash_Item$write, _p5._0, item));
+		}
 	});
-var _user$project$Dash_Item$init = {};
-var _user$project$Dash_Item$Item = {};
-var _user$project$Dash_Item$NoOp = {ctor: 'NoOp'};
 
 var _user$project$Dash_Queue$blank = _elm_lang$html$Html$text('TODO Queue.blank');
 var _user$project$Dash_Queue$map__ = F3(
@@ -11131,10 +11277,11 @@ var _user$project$Dash_Queue$edit_ = F4(
 			do {
 				if ((_p1.ctor === '_Tuple2') && (_p1._0.ctor === 'Just')) {
 					if (_p1._1.ctor === '[]') {
-						return A2(
-							_user$project$Dash_Queue$remove_,
-							p_,
-							A3(_user$project$Dash_Queue$insert_, t_, _p1._0._0, q));
+						return A3(
+							_user$project$Dash_Queue$insert_,
+							t_,
+							_p1._0._0,
+							A2(_user$project$Dash_Queue$remove_, p_, q));
 					} else {
 						if (_p1._0._0.ctor === 'Queue_') {
 							var _v2 = _p1._1._1,
@@ -11249,15 +11396,19 @@ var _user$project$Dash_Queue$find_ = F2(
 				return _elm_lang$core$Maybe$Just(
 					_user$project$Dash_Queue$queue(q));
 			} else {
-				var _p4 = A2(_user$project$Dash_Queue$get_, _p3._0, q);
-				if ((_p4.ctor === 'Just') && (_p4._0.ctor === 'Queue_')) {
-					var _v9 = _p3._1,
-						_v10 = _p4._0._0;
-					r = _v9;
-					q = _v10;
-					continue find_;
+				if (_p3._1.ctor === '[]') {
+					return A2(_user$project$Dash_Queue$get_, _p3._0, q);
 				} else {
-					return _elm_lang$core$Maybe$Nothing;
+					var _p4 = A2(_user$project$Dash_Queue$get_, _p3._0, q);
+					if ((_p4.ctor === 'Just') && (_p4._0.ctor === 'Queue_')) {
+						var _v9 = _p3._1,
+							_v10 = _p4._0._0;
+						r = _v9;
+						q = _v10;
+						continue find_;
+					} else {
+						return _elm_lang$core$Maybe$Nothing;
+					}
 				}
 			}
 		}
@@ -11451,9 +11602,9 @@ var _user$project$Dash_Queue$new = function (model) {
 	var k__ = function () {
 		var _p12 = e_;
 		if (_p12.ctor === 'Queue_') {
-			return 'queue';
+			return 'queue ';
 		} else {
-			return 'item';
+			return 'item ';
 		}
 	}();
 	var _p13 = {
@@ -11475,15 +11626,8 @@ var _user$project$Dash_Queue$new = function (model) {
 								return A2(_elm_lang$core$Basics_ops['++'], x, y);
 							}),
 						k__,
-						A3(
-							_elm_lang$core$Basics$flip,
-							F2(
-								function (x, y) {
-									return A2(_elm_lang$core$Basics_ops['++'], x, y);
-								}),
-							' ',
-							_elm_lang$core$Basics$toString(
-								_elm_lang$core$Dict$size(_p14)))),
+						_elm_lang$core$Basics$toString(
+							_elm_lang$core$Dict$size(_p14))),
 					e_,
 					_p14)));
 	} else {
@@ -11496,18 +11640,6 @@ var _user$project$Dash_Queue$KeyUp = function (a) {
 };
 var _user$project$Dash_Queue$KeyDown = function (a) {
 	return {ctor: 'KeyDown', _0: a};
-};
-var _user$project$Dash_Queue$subs = function (model) {
-	return _elm_lang$core$Platform_Sub$batch(
-		{
-			ctor: '::',
-			_0: _elm_lang$keyboard$Keyboard$ups(_user$project$Dash_Queue$KeyUp),
-			_1: {
-				ctor: '::',
-				_0: _elm_lang$keyboard$Keyboard$downs(_user$project$Dash_Queue$KeyDown),
-				_1: {ctor: '[]'}
-			}
-		});
 };
 var _user$project$Dash_Queue$QueueAsc = {ctor: 'QueueAsc'};
 var _user$project$Dash_Queue$QueueDesc = function (a) {
@@ -11769,6 +11901,39 @@ var _user$project$Dash_Queue$update = F2(
 			{ctor: '[]'},
 			model);
 	});
+var _user$project$Dash_Queue$subs = function (model) {
+	var _p21 = _user$project$Dash_Queue$find(model);
+	if ((_p21.ctor === 'Just') && (_p21._0.ctor === 'Item_')) {
+		return _elm_lang$core$Platform_Sub$batch(
+			{
+				ctor: '::',
+				_0: _elm_lang$keyboard$Keyboard$ups(_user$project$Dash_Queue$KeyUp),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$keyboard$Keyboard$downs(_user$project$Dash_Queue$KeyDown),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$core$Platform_Sub$map,
+							_user$project$Dash_Queue$ItemMsg,
+							_user$project$Dash_Item$subs(_p21._0._0)),
+						_1: {ctor: '[]'}
+					}
+				}
+			});
+	} else {
+		return _elm_lang$core$Platform_Sub$batch(
+			{
+				ctor: '::',
+				_0: _elm_lang$keyboard$Keyboard$ups(_user$project$Dash_Queue$KeyUp),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$keyboard$Keyboard$downs(_user$project$Dash_Queue$KeyDown),
+					_1: {ctor: '[]'}
+				}
+			});
+	}
+};
 var _user$project$Dash_Queue$view = function (model) {
 	return A3(
 		_elm_community$maybe_extra$Maybe_Extra$unwrap,
@@ -11776,11 +11941,11 @@ var _user$project$Dash_Queue$view = function (model) {
 		A2(
 			_user$project$Dash_Queue$map__,
 			A2(_user$project$Dash_Queue$view_, model.t, model.p),
-			function (_p21) {
+			function (_p22) {
 				return A2(
 					_elm_lang$html$Html$map,
 					_user$project$Dash_Queue$ItemMsg,
-					_user$project$Dash_Item$view(_p21));
+					_user$project$Dash_Item$view(_p22));
 			}),
 		_user$project$Dash_Queue$find(model));
 };
@@ -11822,23 +11987,10 @@ var _user$project$Main$subs = function (_p3) {
 };
 var _user$project$Main$view = function (_p5) {
 	var _p6 = _p5;
-	var _p7 = _p6.q;
 	return A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(
-				_elm_lang$core$Basics$toString(_p7)),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$map,
-					_user$project$Main$QueueMsg,
-					_user$project$Dash_Queue$view(_p7)),
-				_1: {ctor: '[]'}
-			}
-		});
+		_elm_lang$html$Html$map,
+		_user$project$Main$QueueMsg,
+		_user$project$Dash_Queue$view(_p6.q));
 };
 var _user$project$Main$main = _elm_lang$html$Html$program(
 	{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subs})();

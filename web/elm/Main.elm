@@ -56,11 +56,5 @@ subs { q } = Sub.map QueueMsg <| Queue.subs q
     
 -- VIEW ------------------------------------------------------------------------
 
--- view : Model -> Html Msg
--- view { q } = q |> Queue.view |> Html.map QueueMsg
-
 view : Model -> Html Msg
-view { q } = div []
-             [ toString q |> text
-             , q |> Queue.view |> Html.map QueueMsg
-             ]
+view { q } = q |> Queue.view |> Html.map QueueMsg

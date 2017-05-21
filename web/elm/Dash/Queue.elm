@@ -96,10 +96,10 @@ new model = let e_ : Queuelet
                      else item  Item.init
                 k__ : String
                 k__ = case e_ of
-                        Queue_ _ -> "queue"
-                        Item_  _ -> "item"
+                        Queue_ _ -> "queue "
+                        Item_  _ -> "item "
             in  case ( model.t, find model ) of
-                  ( Nothing, Just (Queue_ q) ) -> q |> insert_ (q |> Dict.size |> toString |> flip (++) " " |> (++) k__) e_ |> queue |> put model
+                  ( Nothing, Just (Queue_ q) ) -> q |> insert_ (q |> Dict.size |> toString |> (++) k__) e_ |> queue |> put model
                   _                            -> model
                    
 asc : Model -> Model
@@ -121,7 +121,6 @@ pick p_ model = { model | p = Just p_ }
 unpick : Model -> Model
 unpick model = { model | p = Nothing }
 
--- TODO: if not model.t
 up : Model -> Model
 up model = let keys : List String
                keys = find model
@@ -133,7 +132,6 @@ up model = let keys : List String
                |> Maybe_.orElse (keys |> List_.last)
                |> Maybe_.unwrap model (flip pick model)
               
--- TODO: if not model.t
 down : Model -> Model
 down model = let keys : List String
                  keys = find model
@@ -161,6 +159,7 @@ rename k_ model = { model | t = Just k_ }
 find_ : List String -> Queue -> Maybe Queuelet
 find_ r q = case r of
               []       -> q |> queue |> Just
+              k_ :: [] -> get_ k_ q
               k_ :: r_ -> case get_ k_ q of
                            Just (Queue_ q_) -> q_ |> find_ r_
                            _                -> Nothing
@@ -184,7 +183,7 @@ remove_ = Dict.remove
 edit_ : List String -> String -> String -> Queue -> Queue
 edit_ r p_ t_ q
   = case ( get_ p_ q, r ) of
-      ( Just (       e_),       [] ) -> q  |> insert_  t_ e_ |> remove_ p_ 
+      ( Just (       e_),       [] ) -> q  |> remove_  p_    |> insert_ t_ e_ 
       ( Just (Queue_ q_),  _ :: r_ ) -> q_ |> edit_ r_ p_ t_
       _                              -> q
           
@@ -250,10 +249,17 @@ update msg model =
 
 subs : Model -> Sub Msg
 subs model
-  = Sub.batch
-    [ Keyboard.ups   KeyUp  
-    , Keyboard.downs KeyDown
-    ]
+  = case find model of
+      Just (Item_ i_)  -> Sub.batch
+                         [ Keyboard.ups   KeyUp  
+                         , Keyboard.downs KeyDown
+                         , Sub.map ItemMsg <| Item.subs i_
+                         ] 
+      _                -> Sub.batch
+                         [ Keyboard.ups   KeyUp  
+                         , Keyboard.downs KeyDown
+                         ]
+      
                
 
 -- VIEW ------------------------------------------------------------------------
