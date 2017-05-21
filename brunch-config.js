@@ -22,7 +22,10 @@ exports.config = {
     stylesheets: {
       joinTo: "css/app.css",
       order: {
-        after: ["web/static/css/app.css"] // concat app.css last
+          after: [
+              "web/static/css/sakura.css",
+              "web/static/css/app.css"
+          ] // concat app.css last
       }
     },
     templates: {
@@ -59,7 +62,8 @@ exports.config = {
     elmBrunch: {
 	elmFolder: 'web/elm',
 	mainModules: ['Main.elm'],
-	outputFolder: '../static/js'
+	outputFolder: '../static/js',
+	makeParameters: ['--debug']
     }
   },
 

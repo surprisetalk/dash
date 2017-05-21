@@ -1,1 +1,34 @@
-/* This file is for your main application css. */
+/* Buttons, forms and input */
+input, textarea {
+  background-color: rgba(0,0,0,0); 
+  outline: none;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  border: 0px solid black; }
+  input:focus, textarea:focus {
+    background-color: rgba(0,0,0,0); 
+    outline: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    border: 0px solid black; }
+
+:focus {
+  outline: none;
+}
+
+ul {
+  padding-left: 0px; }
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; }
+
+#elm-target {
+  display: flex;
+  align-items: center;
+  justify-content: center; }
+
+
+    

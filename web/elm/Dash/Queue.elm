@@ -14,7 +14,7 @@ import Html.Events exposing (..)
 import Dom exposing (focus)
 import WebSocket
 import Keyboard
-import Dict exposing (..)
+import Dict exposing (Dict)
 import Task
 
 import  List.Extra as List_
@@ -79,6 +79,7 @@ find {r,q} = q |> find_ r
 put : Model -> Queuelet -> Model
 put model = put_ model.r model.q >> setQueue model
 
+-- TODO: prevent from overwriting collisions
 edit : Model -> Model
 edit model
   = case ( find model, model.p, model.t ) of
@@ -107,13 +108,19 @@ asc model = let r_ : List String
                 r_ = model.r |> List_.init |> Maybe.withDefault []
                 p_ : Maybe String
                 p_ = model.r |> List_.last
-            in  { model | r = r_, p = p_ }
+            in  { model | r = r_
+                        , p = p_
+                        , t = Nothing
+                        }
                    
 desc : Model -> Model
 desc model =
   case model.p of
-    Just p_ -> { model | p = Nothing, r = model.r ++ [ p_ ] }
-    Nothing -> model
+    Nothing ->   model
+    Just p_ -> { model | p = Nothing
+                      , r = model.r ++ [ p_ ]
+                      , t = Nothing
+                      }
 
 pick : String -> Model -> Model
 pick p_ model = { model | p = Just p_ }
@@ -130,7 +137,7 @@ up model = let keys : List String
                |> Maybe.map Tuple.first
                |> Maybe.andThen List_.last
                |> Maybe_.orElse (keys |> List_.last)
-               |> Maybe_.unwrap model (flip pick model)
+               |> Maybe_.unwrap { model | t = Nothing } (flip pick { model | t = Nothing })
               
 down : Model -> Model
 down model = let keys : List String
@@ -141,7 +148,7 @@ down model = let keys : List String
                  |> Maybe.map Tuple.second
                  |> Maybe.andThen (List_.getAt 1)
                  |> Maybe_.orElse (keys |> List.head)
-                 |> Maybe_.unwrap model (flip pick model)
+                 |> Maybe_.unwrap { model | t = Nothing } (flip pick { model | t = Nothing })
                       
 shift : Model -> Model
 shift model = { model | s = True }
@@ -182,10 +189,12 @@ remove_ = Dict.remove
           
 edit_ : List String -> String -> String -> Queue -> Queue
 edit_ r p_ t_ q
-  = case ( get_ p_ q, r ) of
-      ( Just (       e_),       [] ) -> q  |> remove_  p_    |> insert_ t_ e_ 
-      ( Just (Queue_ q_),  _ :: r_ ) -> q_ |> edit_ r_ p_ t_
-      _                              -> q
+  = case ( find_ r q ) of
+      Nothing          -> q
+      Just (Item_   _) -> q
+      Just (Queue_ q_) -> case get_ p_ q_ of
+                           Just e_ -> q_ |> remove_ p_ |> insert_ t_ e_ |> queue |> put_ r q
+                           Nothing -> q
           
 -- QUEUELET  -----------------------------------------------------------------------
 
@@ -249,20 +258,19 @@ update msg model =
 
 subs : Model -> Sub Msg
 subs model
-  = case find model of
-      Just (Item_ i_)  -> Sub.batch
-                         [ Keyboard.ups   KeyUp  
-                         , Keyboard.downs KeyDown
-                         , Sub.map ItemMsg <| Item.subs i_
-                         ] 
-      _                -> Sub.batch
-                         [ Keyboard.ups   KeyUp  
-                         , Keyboard.downs KeyDown
-                         ]
-      
+  = Sub.batch
+    [ Keyboard.ups   KeyUp  
+    , Keyboard.downs KeyDown
+    , case find model of
+        Just (Item_  i_) -> Sub.map ItemMsg <| Item.subs i_
+        _                -> Sub.none
+    ] 
                
 
 -- VIEW ------------------------------------------------------------------------
+
+(=>) : a -> b -> (a, b)
+(=>) = (,)
 
 blank : Html Msg
 blank = text "TODO Queue.blank"
@@ -277,11 +285,9 @@ view_ : Maybe String -> Maybe String -> Queue -> Html Msg
 view_ t p = let view__   : String -> Html Msg
                 view__ k = let isSelected : Bool
                                isSelected = p |> Maybe_.unwrap False ((==) k)
-                               k_ : String
-                               k_ = if isSelected then k ++ "*" else k
                            in  case ( isSelected, t ) of
-                                 (True, Just t_) -> li [] [ input [ id k, value t_, onInput QueueRename ] [] ]
-                                 _               -> li [] [ a [ onClick <| QueueDesc k ] [ text k_ ] ]
+                                 (True, Just t_) -> li [ style <| if isSelected then [ "font-weight" => "bold" ] else [] ] [ input [ id k, size <| String.length t_, value t_, onInput QueueRename ] [] ]
+                                 _               -> li [ style <| if isSelected then [ "font-weight" => "bold" ] else [] ] [ a [ onClick <| QueueDesc k ] [ text k ] ]
                                                                
             in  Dict.keys
              >>  List.map view__

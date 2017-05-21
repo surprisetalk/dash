@@ -96,6 +96,6 @@ subs _
 view : Item -> Html Msg
 view i = div []
          [ case i.t of
-             Just t_ -> input [ id i.u, value t_, onInput ItemWrite ] []
+             Just t_ -> input [ id i.u, size <| String.length t_, value t_, onInput ItemWrite ] []
              Nothing -> text i.u
          ]
