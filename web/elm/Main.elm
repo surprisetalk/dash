@@ -3,16 +3,17 @@ module Main exposing (..)
 -- IMPORTS ---------------------------------------------------------------------
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
-import WebSocket
-import Dict exposing (..)
+-- import Html.Attributes exposing (..)
+-- import Html.Events exposing (..)
+-- import WebSocket
+-- import Dict exposing (..)
 
 import Dash.Queue as Queue 
 
 
 -- MAIN ------------------------------------------------------------------------
 
+main : Program Never Model Msg
 main =
   Html.program
     { init = init
@@ -35,8 +36,8 @@ init : (Model, Cmd Msg)
 init = Queue.init []
      |> Tuple.mapFirst Model
      |> Tuple.mapSecond (Cmd.map QueueMsg)
-
-
+       
+       
 -- UPDATE ----------------------------------------------------------------------
 
 type Msg = QueueMsg Queue.Msg
@@ -46,16 +47,16 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg { q } =
   case msg of
     QueueMsg msg_ -> Queue.update msg_ q
-                    |> Tuple.mapFirst Model
-                    |> Tuple.mapSecond (Cmd.map QueueMsg)
-               
-               
+                  |> Tuple.mapFirst Model
+                  |> Tuple.mapSecond (Cmd.map QueueMsg)
+                    
+                    
 -- SUBSCRIPTIONS ---------------------------------------------------------------
 
 subs : Model -> Sub Msg
 subs { q } = Sub.map QueueMsg <| Queue.subs q
-    
-    
+             
+             
 -- VIEW ------------------------------------------------------------------------
 
 view : Model -> Html Msg

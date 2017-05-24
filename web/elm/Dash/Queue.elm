@@ -1,3 +1,4 @@
+
 port module Dash.Queue exposing ( Model
                                 , init
                                 , Msg
@@ -12,7 +13,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Dom exposing (focus)
-import WebSocket
 import Keyboard
 import Dict exposing (Dict)
 import Task
@@ -25,8 +25,6 @@ import  Maybe.Extra as Maybe_
 import Result.Extra as Result_
 
 import Phoenix.Socket
-import Phoenix.Channel
-import Phoenix.Push
 
 import Dash.Item as Item exposing (..)
 
@@ -48,7 +46,6 @@ type alias Model = { p : Maybe String
                    , r : Route
                    , s : Bool
                    , t : Maybe String
-                   , u : Phoenix.Socket.Socket Msg
                    , v : Maybe Int
                    }
 
@@ -65,9 +62,6 @@ init r = let model = { p = Nothing
                      , r = r
                      , s = False
                      , t = Nothing
-                     , u = Phoenix.Socket.init "ws://localhost:9454/socket/websocket"
-                     |> Phoenix.Socket.withDebug
-                     |> Phoenix.Socket.on "queue:update" "room:lobby" (toString >> Log)
                      , v = Nothing
                      }
          in  ( model, model |> encode |> queuePub )
@@ -256,6 +250,7 @@ map__ f g e
 
 -- JSON ------------------------------------------------------------------------
 
+(:=) : String -> Decoder a -> Decoder a
 (:=) = JD.field
 
 encode : Model -> JE.Value
